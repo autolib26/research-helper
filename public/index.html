@@ -1,0 +1,438 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Research Helper</title>
+  <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&family=Fredoka+One&display=swap" rel="stylesheet" />
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Nunito', sans-serif;
+      background: #f0faf5;
+      min-height: 100vh;
+      padding: 2rem 1rem 4rem;
+    }
+
+    .container { max-width: 760px; margin: 0 auto; }
+
+    .header {
+      text-align: center;
+      margin-bottom: 2rem;
+    }
+
+    .header h1 {
+      font-family: 'Fredoka One', cursive;
+      font-size: 38px;
+      color: #0F6E56;
+      margin-bottom: 6px;
+    }
+
+    .header p {
+      font-size: 16px;
+      color: #4a7c6a;
+    }
+
+    .form-card {
+      background: white;
+      border-radius: 16px;
+      padding: 1.5rem;
+      box-shadow: 0 2px 12px rgba(0,0,0,0.07);
+      margin-bottom: 1.5rem;
+    }
+
+    .grade-row {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 1.2rem;
+      flex-wrap: wrap;
+    }
+
+    .grade-label {
+      font-size: 15px;
+      font-weight: 700;
+      color: #555;
+      white-space: nowrap;
+    }
+
+    .grade-btns { display: flex; gap: 8px; flex-wrap: wrap; }
+
+    .grade-btn {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      border: 2px solid #cce8de;
+      background: #f0faf5;
+      font-family: 'Nunito', sans-serif;
+      font-size: 15px;
+      font-weight: 700;
+      color: #4a7c6a;
+      cursor: pointer;
+      transition: all 0.15s;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .grade-btn:hover { background: #cce8de; border-color: #1D9E75; color: #0F6E56; }
+    .grade-btn.selected { background: #1D9E75; border-color: #1D9E75; color: white; }
+
+    .topic-row { display: flex; gap: 10px; }
+
+    .topic-input {
+      flex: 1;
+      padding: 12px 16px;
+      border-radius: 10px;
+      border: 2px solid #cce8de;
+      font-family: 'Nunito', sans-serif;
+      font-size: 16px;
+      color: #222;
+      outline: none;
+      transition: border-color 0.15s;
+    }
+
+    .topic-input:focus { border-color: #1D9E75; }
+    .topic-input::placeholder { color: #aaa; }
+
+    .search-btn {
+      padding: 12px 24px;
+      background: #1D9E75;
+      color: white;
+      border: none;
+      border-radius: 10px;
+      font-family: 'Fredoka One', cursive;
+      font-size: 18px;
+      cursor: pointer;
+      transition: background 0.15s, transform 0.1s;
+      white-space: nowrap;
+    }
+
+    .search-btn:hover { background: #0F6E56; }
+    .search-btn:active { transform: scale(0.97); }
+    .search-btn:disabled { background: #aaa; cursor: not-allowed; }
+
+    .tip {
+      font-size: 13px;
+      color: #888;
+      text-align: center;
+      margin-top: 10px;
+    }
+
+    .error-msg {
+      background: #fff0f0;
+      border: 1.5px solid #f7c1c1;
+      border-radius: 10px;
+      padding: 12px 16px;
+      color: #a33;
+      font-size: 14px;
+      display: none;
+      margin-bottom: 1rem;
+    }
+
+    .error-msg.visible { display: block; }
+
+    .loading {
+      text-align: center;
+      padding: 2.5rem;
+      display: none;
+    }
+
+    .loading.visible { display: block; }
+
+    .spinner {
+      width: 40px;
+      height: 40px;
+      border: 4px solid #cce8de;
+      border-top-color: #1D9E75;
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+      margin: 0 auto 1rem;
+    }
+
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    .loading p { color: #4a7c6a; font-size: 15px; font-weight: 600; }
+
+    .results { display: none; }
+    .results.visible { display: block; }
+
+    .result-header {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 1.2rem;
+      flex-wrap: wrap;
+    }
+
+    .badge {
+      background: #1D9E75;
+      color: white;
+      padding: 4px 14px;
+      border-radius: 20px;
+      font-size: 13px;
+      font-weight: 700;
+    }
+
+    .topic-tag {
+      font-size: 15px;
+      color: #555;
+    }
+
+    .fun-fact {
+      background: #E1F5EE;
+      border: 2px solid #9FE1CB;
+      border-radius: 14px;
+      padding: 1.1rem 1.4rem;
+      margin-bottom: 1.2rem;
+    }
+
+    .fun-fact .label {
+      font-size: 12px;
+      font-weight: 800;
+      color: #0F6E56;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      margin-bottom: 5px;
+    }
+
+    .fun-fact p { font-size: 15px; color: #085041; line-height: 1.6; }
+
+    .section-title {
+      font-family: 'Fredoka One', cursive;
+      font-size: 20px;
+      color: #0F6E56;
+      margin-bottom: 12px;
+    }
+
+    .ideas-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+      gap: 12px;
+      margin-bottom: 1.5rem;
+    }
+
+    .idea-card {
+      background: white;
+      border: 2px solid #e0f2eb;
+      border-radius: 14px;
+      padding: 1rem;
+      transition: border-color 0.15s, transform 0.1s;
+    }
+
+    .idea-card:hover { border-color: #1D9E75; transform: translateY(-2px); }
+    .idea-card .icon { font-size: 30px; margin-bottom: 8px; display: block; }
+    .idea-card h3 { font-size: 15px; font-weight: 700; color: #1a1a1a; margin-bottom: 5px; }
+    .idea-card p { font-size: 13px; color: #555; line-height: 1.5; }
+
+    .questions-card {
+      background: white;
+      border: 2px solid #e0f2eb;
+      border-radius: 14px;
+      padding: 1.1rem 1.4rem;
+      margin-bottom: 1.5rem;
+    }
+
+    .questions-card li {
+      font-size: 14px;
+      color: #333;
+      padding: 8px 0;
+      border-bottom: 1px solid #e0f2eb;
+      list-style: none;
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+      line-height: 1.5;
+    }
+
+    .questions-card li:last-child { border-bottom: none; }
+
+    .q-dot {
+      width: 22px;
+      height: 22px;
+      background: #9FE1CB;
+      border-radius: 50%;
+      flex-shrink: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 12px;
+      font-weight: 700;
+      color: #085041;
+      margin-top: 1px;
+    }
+
+    .new-search-btn {
+      display: block;
+      width: 100%;
+      padding: 13px;
+      background: #f0faf5;
+      border: 2px solid #1D9E75;
+      border-radius: 10px;
+      font-family: 'Fredoka One', cursive;
+      font-size: 17px;
+      color: #1D9E75;
+      cursor: pointer;
+      transition: background 0.15s;
+      text-align: center;
+    }
+
+    .new-search-btn:hover { background: #cce8de; }
+
+    footer {
+      text-align: center;
+      margin-top: 2rem;
+      font-size: 12px;
+      color: #aaa;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <h1>⭐ Research Helper ⭐</h1>
+      <p>Get great ideas for your school research project!</p>
+    </div>
+
+    <div class="form-card">
+      <div class="grade-row">
+        <span class="grade-label">My grade:</span>
+        <div class="grade-btns" id="gradeBtns"></div>
+      </div>
+      <div class="topic-row">
+        <input class="topic-input" id="topicInput" type="text" placeholder="e.g. dinosaurs, oceans, space..." maxlength="80" />
+        <button class="search-btn" id="searchBtn" onclick="doSearch()">Let's go!</button>
+      </div>
+      <p class="tip">Pick your grade, type a topic, and get personalized research ideas!</p>
+    </div>
+
+    <div class="error-msg" id="errorMsg"></div>
+
+    <div class="loading" id="loading">
+      <div class="spinner"></div>
+      <p>Finding great ideas for you...</p>
+    </div>
+
+    <div class="results" id="results"></div>
+  </div>
+
+  <footer>Research Helper — safe, age-appropriate ideas for grades 1–8</footer>
+
+  <script>
+    const grades = [1,2,3,4,5,6,7,8];
+    let selectedGrade = null;
+    const gradeBtns = document.getElementById('gradeBtns');
+
+    grades.forEach(g => {
+      const btn = document.createElement('button');
+      btn.className = 'grade-btn';
+      btn.textContent = g;
+      btn.onclick = () => {
+        document.querySelectorAll('.grade-btn').forEach(b => b.classList.remove('selected'));
+        btn.classList.add('selected');
+        selectedGrade = g;
+      };
+      gradeBtns.appendChild(btn);
+    });
+
+    document.getElementById('topicInput').addEventListener('keydown', e => {
+      if (e.key === 'Enter') doSearch();
+    });
+
+    async function doSearch() {
+      const topic = document.getElementById('topicInput').value.trim();
+      const errorMsg = document.getElementById('errorMsg');
+      const loading = document.getElementById('loading');
+      const results = document.getElementById('results');
+      const searchBtn = document.getElementById('searchBtn');
+
+      errorMsg.className = 'error-msg';
+      results.className = 'results';
+      results.innerHTML = '';
+
+      if (!topic) { errorMsg.textContent = 'Please type a research topic first!'; errorMsg.className = 'error-msg visible'; return; }
+      if (!selectedGrade) { errorMsg.textContent = 'Please pick your grade!'; errorMsg.className = 'error-msg visible'; return; }
+
+      loading.className = 'loading visible';
+      searchBtn.disabled = true;
+
+      try {
+        const res = await fetch('/api/research', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ topic, grade: selectedGrade })
+        });
+
+        const data = await res.json();
+
+        if (!res.ok) throw new Error(data.error || 'Server error');
+
+        loading.className = 'loading';
+        searchBtn.disabled = false;
+
+        if (!data.safeTopicCheck) {
+          errorMsg.textContent = "Hmm, that topic doesn't seem right for school research. Try something like animals, history, science, or geography!";
+          errorMsg.className = 'error-msg visible';
+          return;
+        }
+
+        renderResults(data, topic, selectedGrade);
+
+      } catch (err) {
+        loading.className = 'loading';
+        searchBtn.disabled = false;
+        errorMsg.textContent = 'Something went wrong: ' + err.message;
+        errorMsg.className = 'error-msg visible';
+      }
+    }
+
+    function esc(s) {
+      const d = document.createElement('div');
+      d.textContent = String(s);
+      return d.innerHTML;
+    }
+
+    function renderResults(data, topic, grade) {
+      const el = document.getElementById('results');
+
+      const ideasHtml = (data.ideas || []).map(idea => `
+        <div class="idea-card">
+          <span class="icon">${esc(idea.icon)}</span>
+          <h3>${esc(idea.title)}</h3>
+          <p>${esc(idea.description)}</p>
+        </div>
+      `).join('');
+
+      const questionsHtml = (data.questions || []).map((q, i) => `
+        <li><span class="q-dot">${i + 1}</span>${esc(q)}</li>
+      `).join('');
+
+      el.innerHTML = `
+        <div class="result-header">
+          <span class="badge">Grade ${grade}</span>
+          <span class="topic-tag">Results for: <strong>${esc(topic)}</strong></span>
+        </div>
+        <div class="fun-fact">
+          <div class="label">⭐ Fun fact!</div>
+          <p>${esc(data.funFact)}</p>
+        </div>
+        <div class="section-title">💡 Research ideas</div>
+        <div class="ideas-grid">${ideasHtml}</div>
+        <div class="section-title">❓ Questions to explore</div>
+        <ul class="questions-card">${questionsHtml}</ul>
+        <button class="new-search-btn" onclick="resetForm()">🔍 Search another topic</button>
+      `;
+
+      el.className = 'results visible';
+      el.scrollIntoView({ behavior: 'smooth' });
+    }
+
+    function resetForm() {
+      document.getElementById('results').className = 'results';
+      document.getElementById('topicInput').value = '';
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+  </script>
+</body>
+</html>

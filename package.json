@@ -1,0 +1,17 @@
+{
+  "name": "research-helper",
+  "version": "1.0.0",
+  "description": "Safe AI-powered research topic helper for grades 1-8",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node server.js"
+  },
+  "dependencies": {
+    "dotenv": "^17.4.2",
+    "express": "^4.18.2"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  }
+}
